@@ -19,22 +19,16 @@ class Program
             char move = Console.ReadKey().KeyChar;
             Console.WriteLine();
 
-            if (move == 'W' || move == 'w')
-                MoveTilesUp(gameGrid);
-            else if (move == 'S' || move == 's')
-                MoveTilesDown(gameGrid);
-            else if (move == 'A' || move == 'a')
-                MoveTilesLeft(gameGrid);
-            else if (move == 'D' || move == 'd')
-                MoveTilesRight(gameGrid);
+            if (IsValidMove(move))
+            {
+                MakeMove(gameGrid, move);
+                PlaceRandomTile(gameGrid); // Adds new tile
+                DisplayGrid(gameGrid); // Displays updated grid
+            }
             else
             {
                 Console.WriteLine("Invalid move. Please try again.");
-                continue; // Repeats while, to not add new tile or redisplay grid
             }
-
-            PlaceRandomTile(gameGrid); // Adds new tile
-            DisplayGrid(gameGrid); // Displays updated grid
         }
 
         Console.WriteLine("Game Over!");
@@ -87,13 +81,22 @@ class Program
         {
             for (int col = 0; col < N; col++)
             {
-                if (gameGrid[row, col] == 0)
+                if (gameGrid[row, col] == 0 || HasAdjacentEqualTiles(gameGrid, row, col))
                 {
-                    return false; // If any cell is empty, the game is not over
+                    return false; // If any cell is empty or has adjacent equal tiles, the game is not over
                 }
             }
         }
-        return true; // If all cells are filled, the game is over
+        return true; // If all cells are filled and no adjacent equal tiles, the game is over
+    }
+
+    static bool HasAdjacentEqualTiles(int[,] gameGrid, int row, int col)
+    {
+        if (row > 0 && gameGrid[row, col] == gameGrid[row - 1, col]) return true;
+        if (row < N - 1 && gameGrid[row, col] == gameGrid[row + 1, col]) return true;
+        if (col > 0 && gameGrid[row, col] == gameGrid[row, col - 1]) return true;
+        if (col < N - 1 && gameGrid[row, col] == gameGrid[row, col + 1]) return true;
+        return false;
     }
 
     static int ScoreCalculation(int[,] gameGrid)
@@ -109,10 +112,36 @@ class Program
         return score;
     }
 
+    static bool IsValidMove(char move)
+    {
+        return move == 'W' || move == 'w' || move == 'S' || move == 's' || move == 'A' || move == 'a' || move == 'D' || move == 'd';
+    }
+
+    static void MakeMove(int[,] gameGrid, char move)
+    {
+        switch (move)
+        {
+            case 'W':
+            case 'w':
+                MoveTilesUp(gameGrid);
+                break;
+            case 'S':
+            case 's':
+                MoveTilesDown(gameGrid);
+                break;
+            case 'A':
+            case 'a':
+                MoveTilesLeft(gameGrid);
+                break;
+            case 'D':
+            case 'd':
+                MoveTilesRight(gameGrid);
+                break;
+        }
+    }
+
     static void MoveTilesUp(int[,] gameGrid)
     {
-        int[,] tempGrid = new int[N, N]; // Temp grid to hold non-zeros
-
         for (int col = 0; col < N; col++)
         {
             List<int> tempCol = new List<int>(); // Temp col to hold non-zeros in column
@@ -125,44 +154,36 @@ class Program
             }
             MergeTiles(tempCol); // Merge the tiles in the column
 
-            for (int row = 0; row < tempCol.Count; row++) // Replaces the tempGrid col with the merged tempCol
+            for (int row = 0; row < N; row++) // Replaces the gameGrid col with the merged tempCol
             {
-                tempGrid[row, col] = tempCol[row];
+                gameGrid[row, col] = (row < tempCol.Count) ? tempCol[row] : 0;
             }
         }
-
-        Array.Copy(tempGrid, gameGrid, tempGrid.Length); // Applies all the changes
     }
 
     static void MoveTilesDown(int[,] gameGrid)
     {
-        int[,] tempGrid = new int[N, N]; // Temp grid to hold non-zeros
-
         for (int col = 0; col < N; col++)
         {
             List<int> tempCol = new List<int>(); // Temp col to hold non-zeros in column
-            for (int row = 0; row < N; row++)
+            for (int row = N - 1; row >= 0; row--)
             {
-                if (gameGrid[N - row - 1, col] != 0)
+                if (gameGrid[row, col] != 0)
                 {
-                    tempCol.Add(gameGrid[N - row - 1, col]); // Adds non-zeros to tempCol, but in reverse (it's down)
+                    tempCol.Add(gameGrid[row, col]); // Adds non-zeros to tempCol, but in reverse (it's down)
                 }
             }
             MergeTiles(tempCol); // Merge the tiles in the column
 
-            for (int row = 0; row < tempCol.Count; row++) // Replaces the tempGrid col with the merged tempCol
+            for (int row = N - 1; row >= 0; row--) // Replaces the gameGrid col with the merged tempCol
             {
-                tempGrid[N - row - 1, col] = tempCol[row];
+                gameGrid[row, col] = (N - 1 - row < tempCol.Count) ? tempCol[N - 1 - row] : 0;
             }
         }
-
-        Array.Copy(tempGrid, gameGrid, tempGrid.Length); // Applies all the changes
     }
 
     static void MoveTilesLeft(int[,] gameGrid)
     {
-        int[,] tempGrid = new int[N, N]; // Temp grid to hold non-zeros
-
         for (int row = 0; row < N; row++)
         {
             List<int> tempRow = new List<int>(); // Temp row to hold non-zeros in row
@@ -175,66 +196,42 @@ class Program
             }
             MergeTiles(tempRow); // Merge the tiles in the row
 
-            for (int col = 0; col < tempRow.Count; col++) // Replaces the tempGrid row with the merged tempRow
+            for (int col = 0; col < N; col++) // Replaces the gameGrid row with the merged tempRow
             {
-                tempGrid[row, col] = tempRow[col];
+                gameGrid[row, col] = (col < tempRow.Count) ? tempRow[col] : 0;
             }
         }
-
-        Array.Copy(tempGrid, gameGrid, tempGrid.Length); // Applies all the changes
     }
 
     static void MoveTilesRight(int[,] gameGrid)
     {
-        int[,] tempGrid = new int[N, N]; // Temp grid to hold non-zeros
-
         for (int row = 0; row < N; row++)
         {
             List<int> tempRow = new List<int>(); // Temp row to hold non-zeros in row
-            for (int col = 0; col < N; col++)
+            for (int col = N - 1; col >= 0; col--)
             {
-                if (gameGrid[row, N - col - 1] != 0)
+                if (gameGrid[row, col] != 0)
                 {
-                    tempRow.Add(gameGrid[row, N - col - 1]); // Adds non-zeros to tempRow, but in reverse (it's right)
+                    tempRow.Add(gameGrid[row, col]); // Adds non-zeros to tempRow, but in reverse (it's right)
                 }
             }
             MergeTiles(tempRow); // Merge the tiles in the row
 
-            for (int col = 0; col < tempRow.Count; col++) // Replaces the tempGrid row with the merged tempRow
+            for (int col = N - 1; col >= 0; col--) // Replaces the gameGrid row with the merged tempRow
             {
-                tempGrid[row, N - col - 1] = tempRow[col];
+                gameGrid[row, col] = (N - 1 - col < tempRow.Count) ? tempRow[N - 1 - col] : 0;
             }
         }
-
-        Array.Copy(tempGrid, gameGrid, tempGrid.Length); // Applies all the changes
     }
 
-    static void MergeTiles(List<int> row)
+    static void MergeTiles(List<int> tiles)
     {
-        int i = 0; // Start index
-        int j = 1; // Next index (i+1)
-
-        while (j < row.Count) // Loop through the row and merge adjacent tiles with same value
+        for (int i = 0; i < tiles.Count - 1; i++)
         {
-            if (row[i] == row[j] && row[i] != 0) // If adjacent tiles have the same value AND not zero, merge
+            if (tiles[i] == tiles[i + 1])
             {
-                row[i] *= 2; // Double the value of the current tile
-                row[j] = 0;  // Set the value of the next tile to zero
-                i = j + 1;   // Move the start index to the next element after the merged tiles
-                j = i + 1;   // Move the next index to the element after the start index
-            }
-            else
-            {
-                if (row[i] == 0 && row[j] != 0) // If the current tile is zero AND the next tile is not zero, swap
-                {
-                    int temp = row[i];
-                    row[i] = row[j];
-                    row[j] = temp; // Moves the non-zero tile towards the beginning of row
-                }
-
-                // Move to the next pair of elements in the row to compare
-                i++;
-                j++;
+                tiles[i] *= 2;
+                tiles.RemoveAt(i + 1);
             }
         }
     }
