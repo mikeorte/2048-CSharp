@@ -12,7 +12,7 @@ This is a simple console-based implementation of the 2048 game in C#.
 ## Setup
 
 1. Clone the repository:
-   git clone https://github.com/yourusername/2048-game.git
+   git clone https://github.com/mikeorte/2048-CSharp.git
 
 2. Open the project in your preferred C# IDE.
 
