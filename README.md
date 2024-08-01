@@ -16,7 +16,7 @@ This is a simple console-based implementation of the 2048 game in C#.
 
 2. Open the project in your preferred C# IDE.
 
-3. Run the `main.cs` file.
+3. Run the `program.cs` file.
 
 ## License
 
