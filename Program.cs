@@ -60,11 +60,59 @@ namespace _2048_CSharp
             {
                 for (int col = 0; col < N; col++)
                 {
+                    SetConsoleColor(gameGrid[row, col]);
                     Console.Write(gameGrid[row, col] + "\t");
                 }
                 Console.WriteLine();
             }
+            Console.ResetColor();
             Console.WriteLine("-----------------------------");
+        }
+
+        static void SetConsoleColor(int value)
+        {
+            switch (value)
+            {
+                case 0:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+                case 2:
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    break;
+                case 4:
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    break;
+                case 8:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    break;
+                case 16:
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    break;
+                case 32:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+                case 64:
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    break;
+                case 128:
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    break;
+                case 256:
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    break;
+                case 512:
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    break;
+                case 1024:
+                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                    break;
+                case 2048:
+                    Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                    break;
+                default:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+            }
         }
 
         static void PlaceRandomTile(int[,] gameGrid)
